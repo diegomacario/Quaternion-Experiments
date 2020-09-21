@@ -2,9 +2,7 @@
 #define GAME_H
 
 #include "model.h"
-#include "renderer_2D.h"
-#include "movable_game_object_2D.h"
-#include "movable_game_object_3D.h"
+#include "game_object_3D.h"
 #include "camera.h"
 #include "window.h"
 #include "state.h"
@@ -33,8 +31,6 @@ private:
    std::shared_ptr<Window>                 mWindow;
 
    std::shared_ptr<Camera>                 mCamera;
-
-   std::shared_ptr<Renderer2D>             mRenderer2D;
 
    ResourceManager<Model>                  mModelManager;
    ResourceManager<Texture>                mTextureManager;

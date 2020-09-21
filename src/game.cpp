@@ -10,7 +10,6 @@ Game::Game()
    : mFSM()
    , mWindow()
    , mCamera()
-   , mRenderer2D()
    , mModelManager()
    , mTextureManager()
    , mShaderManager()
@@ -41,7 +40,7 @@ bool Game::initialize(const std::string& title)
    float heightInPix = 720.0f;
    float aspectRatio = (widthInPix / heightInPix);
 
-   mCamera = std::make_shared<Camera>(glm::vec3(0.0f, 10.0f, 30.0f),
+   mCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 40.0f),
                                       glm::vec3(0.0f, 1.0f, 0.0f),
                                       0.0f,
                                       0.0f,
@@ -51,22 +50,6 @@ bool Game::initialize(const std::string& title)
                                       130.0f,      // Far
                                       20.0f,       // Movement speed
                                       0.1f);       // Mouse sensitivity
-
-   // Initialize the 2D renderer
-   glm::mat4 orthoProj = glm::ortho(0.0f,        // Left
-                                    widthInPix,  // Right
-                                    heightInPix, // Bottom
-                                    0.0f,        // Top
-                                   -1.0f,        // Near
-                                    1.0f);       // Far
-
-   auto gameObj2DShader = mShaderManager.loadResource<ShaderLoader>("game_object_2D",
-                                                                    "resources/shaders/game_object_2D.vs",
-                                                                    "resources/shaders/game_object_2D.fs");
-   gameObj2DShader->use();
-   gameObj2DShader->setInt("image", 0);
-   gameObj2DShader->setMat4("projection", orthoProj);
-   mRenderer2D = std::make_unique<Renderer2D>(gameObj2DShader);
 
    // Initialize the 3D shader
    auto gameObj3DShader = mShaderManager.loadResource<ShaderLoader>("game_object_3D",
@@ -85,15 +68,15 @@ bool Game::initialize(const std::string& title)
    mModelManager.loadResource<ModelLoader>("teapot", "resources/models/teapot/teapot.obj");
 
    mTable = std::make_shared<GameObject3D>(mModelManager.getResource("table"),
-                                           glm::vec3(0.0f),
-                                           0.0f, //90.0f,
-                                           glm::vec3(0.0f, 0.0f, 0.0f), //glm::vec3(1.0f, 0.0f, 0.0f),
+                                           glm::vec3(0.0f, -1.96875f * (7.5f / 2.5f) * 2.5f, 0.0f),
+                                           0.0f,
+                                           glm::vec3(0.0f, 0.0f, 0.0f),
                                            1.0f);
 
    mTeapot = std::make_shared<GameObject3D>(mModelManager.getResource("teapot"),
-                                            glm::vec3(0.0f, 1.96875 * (7.5f / 2.5f), 0.0f),
-                                            0.0f, //90.0f,
-                                            glm::vec3(0.0f, 0.0f, 0.0f), //glm::vec3(1.0f, 0.0f, 0.0f),
+                                            glm::vec3(0.0f),
+                                            0.0f,
+                                            glm::vec3(0.0f, 0.0f, 0.0f),
                                             7.5f / 2.5f);
 
    // Create the FSM
