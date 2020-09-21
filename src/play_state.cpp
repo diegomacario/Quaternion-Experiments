@@ -8,13 +8,13 @@ PlayState::PlayState(const std::shared_ptr<FiniteStateMachine>&     finiteStateM
                      const std::shared_ptr<Camera>&                 camera,
                      const std::shared_ptr<Shader>&                 gameObject3DShader,
                      const std::shared_ptr<GameObject3D>&           table,
-                     const std::shared_ptr<Ball>&                   ball)
+                     const std::shared_ptr<GameObject3D>&           teapot)
    : mFSM(finiteStateMachine)
    , mWindow(window)
    , mCamera(camera)
    , mGameObject3DShader(gameObject3DShader)
    , mTable(table)
-   , mBall(ball)
+   , mTeapot(teapot)
 {
 
 }
@@ -160,7 +160,7 @@ void PlayState::render()
 
    // Disable face culling so that we render the inside of the teapot
    glDisable(GL_CULL_FACE);
-   mBall->render(*mGameObject3DShader);
+   mTeapot->render(*mGameObject3DShader);
    glEnable(GL_CULL_FACE);
 
    mWindow->generateAntiAliasedImage();
@@ -176,7 +176,7 @@ void PlayState::exit()
 
 void PlayState::resetScene()
 {
-   mBall->reset();
+
 }
 
 void PlayState::resetCamera()

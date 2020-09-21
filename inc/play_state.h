@@ -14,7 +14,7 @@ public:
              const std::shared_ptr<Camera>&                 camera,
              const std::shared_ptr<Shader>&                 gameObject3DShader,
              const std::shared_ptr<GameObject3D>&           table,
-             const std::shared_ptr<Ball>&                   ball);
+             const std::shared_ptr<GameObject3D>&           teapot);
    ~PlayState() = default;
 
    PlayState(const PlayState&) = delete;
@@ -44,7 +44,7 @@ private:
    std::shared_ptr<Shader>                 mGameObject3DShader;
 
    std::shared_ptr<GameObject3D>           mTable;
-   std::shared_ptr<Ball>                   mBall;
+   std::shared_ptr<GameObject3D>           mTeapot;
 };
 
 #endif

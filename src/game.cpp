@@ -15,7 +15,7 @@ Game::Game()
    , mTextureManager()
    , mShaderManager()
    , mTable()
-   , mBall()
+   , mTeapot()
 {
 
 }
@@ -90,14 +90,11 @@ bool Game::initialize(const std::string& title)
                                            glm::vec3(0.0f, 0.0f, 0.0f), //glm::vec3(1.0f, 0.0f, 0.0f),
                                            1.0f);
 
-   mBall = std::make_shared<Ball>(mModelManager.getResource("teapot"),
-                                  glm::vec3(0.0f, 1.96875 * (7.5f / 2.5f), 0.0f),
-                                  0.0f, //90.0f,
-                                  glm::vec3(0.0f, 0.0f, 0.0f), //glm::vec3(1.0f, 0.0f, 0.0f),
-                                  7.5f / 2.5f,
-                                  glm::vec3(35.0f, 45.0f, 0.0f),
-                                  7.5f,
-                                  1000.0f);
+   mTeapot = std::make_shared<GameObject3D>(mModelManager.getResource("teapot"),
+                                            glm::vec3(0.0f, 1.96875 * (7.5f / 2.5f), 0.0f),
+                                            0.0f, //90.0f,
+                                            glm::vec3(0.0f, 0.0f, 0.0f), //glm::vec3(1.0f, 0.0f, 0.0f),
+                                            7.5f / 2.5f);
 
    // Create the FSM
    mFSM = std::make_shared<FiniteStateMachine>();
@@ -110,7 +107,7 @@ bool Game::initialize(const std::string& title)
                                                  mCamera,
                                                  gameObj3DShader,
                                                  mTable,
-                                                 mBall);
+                                                 mTeapot);
 
    // Initialize the FSM
    mFSM->initialize(std::move(mStates), "play");
