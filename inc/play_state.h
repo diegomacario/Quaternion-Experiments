@@ -4,6 +4,7 @@
 #include <array>
 
 #include "game.h"
+#include "line.h"
 
 class PlayState : public State
 {
@@ -13,6 +14,7 @@ public:
              const std::shared_ptr<Window>&                 window,
              const std::shared_ptr<Camera>&                 camera,
              const std::shared_ptr<Shader>&                 gameObject3DShader,
+             const std::shared_ptr<Shader>&                 lineShader,
              const std::shared_ptr<GameObject3D>&           table,
              const std::shared_ptr<GameObject3D>&           teapot);
    ~PlayState() = default;
@@ -42,9 +44,14 @@ private:
    std::shared_ptr<Camera>                 mCamera;
 
    std::shared_ptr<Shader>                 mGameObject3DShader;
+   std::shared_ptr<Shader>                 mLineShader;
 
    std::shared_ptr<GameObject3D>           mTable;
    std::shared_ptr<GameObject3D>           mTeapot;
+
+   Line                                    mXAxis;
+   Line                                    mYAxis;
+   Line                                    mZAxis;
 };
 
 #endif

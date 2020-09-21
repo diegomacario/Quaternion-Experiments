@@ -7,14 +7,19 @@ PlayState::PlayState(const std::shared_ptr<FiniteStateMachine>&     finiteStateM
                      const std::shared_ptr<Window>&                 window,
                      const std::shared_ptr<Camera>&                 camera,
                      const std::shared_ptr<Shader>&                 gameObject3DShader,
+                     const std::shared_ptr<Shader>&                 lineShader,
                      const std::shared_ptr<GameObject3D>&           table,
                      const std::shared_ptr<GameObject3D>&           teapot)
    : mFSM(finiteStateMachine)
    , mWindow(window)
    , mCamera(camera)
    , mGameObject3DShader(gameObject3DShader)
+   , mLineShader(lineShader)
    , mTable(table)
    , mTeapot(teapot)
+   , mXAxis(glm::vec3(0.0f), glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f))
+   , mYAxis(glm::vec3(0.0f), glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f))
+   , mZAxis(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f))
 {
 
 }
@@ -152,6 +157,13 @@ void PlayState::render()
    // Enable depth testing for 3D objects
    glEnable(GL_DEPTH_TEST);
 
+   mLineShader->use();
+   mLineShader->setMat4("projectionView", mCamera->getPerspectiveProjectionViewMatrix());
+
+   mXAxis.render(*mLineShader);
+   mYAxis.render(*mLineShader);
+   mZAxis.render(*mLineShader);
+
    mGameObject3DShader->use();
    mGameObject3DShader->setMat4("projectionView", mCamera->getPerspectiveProjectionViewMatrix());
    mGameObject3DShader->setVec3("cameraPos", mCamera->getPosition());
@@ -181,9 +193,9 @@ void PlayState::resetScene()
 
 void PlayState::resetCamera()
 {
-   mCamera->reposition(glm::vec3(0.0f, 0.0f, 40.0f),
+   mCamera->reposition(glm::vec3(30.0f, 30.0f, 30.0f),
                        glm::vec3(0.0f, 1.0f, 0.0f),
-                       0.0f,
-                       0.0f,
+                       -45.0f,
+                       -30.0f,
                        45.0f);
 }

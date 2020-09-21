@@ -40,10 +40,10 @@ bool Game::initialize(const std::string& title)
    float heightInPix = 720.0f;
    float aspectRatio = (widthInPix / heightInPix);
 
-   mCamera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 40.0f),
+   mCamera = std::make_shared<Camera>(glm::vec3(30.0f, 30.0f, 30.0f),
                                       glm::vec3(0.0f, 1.0f, 0.0f),
-                                      0.0f,
-                                      0.0f,
+                                      -45.0f,
+                                      -30.0f,
                                       45.0f,       // Fovy
                                       aspectRatio, // Aspect ratio
                                       0.1f,        // Near
@@ -62,6 +62,11 @@ bool Game::initialize(const std::string& title)
    gameObj3DShader->setFloat("pointLights[0].linearAtt", 0.01f);
    gameObj3DShader->setFloat("pointLights[0].quadraticAtt", 0.0f);
    gameObj3DShader->setInt("numPointLightsInScene", 1);
+
+   // Initialize the line shader
+   auto lineShader = mShaderManager.loadResource<ShaderLoader>("line",
+                                                               "resources/shaders/line.vs",
+                                                               "resources/shaders/line.fs");
 
    // Load the models
    mModelManager.loadResource<ModelLoader>("table", "resources/models/table/table.obj");
@@ -89,6 +94,7 @@ bool Game::initialize(const std::string& title)
                                                  mWindow,
                                                  mCamera,
                                                  gameObj3DShader,
+                                                 lineShader,
                                                  mTable,
                                                  mTeapot);
 

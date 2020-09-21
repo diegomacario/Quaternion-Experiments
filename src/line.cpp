@@ -1,16 +1,29 @@
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
 
 #include "line.h"
 
-Line::Line(glm::vec3 startPoint,
-           glm::vec3 endPoint)
+Line::Line(glm::vec3        startPoint,
+           glm::vec3        endPoint,
+           const glm::vec3& position,
+           float            angleOfRotInDeg,
+           const glm::vec3& axisOfRot,
+           float            scalingFactor,
+           glm::vec3        color)
    : mStartPoint(startPoint)
    , mEndPoint(endPoint)
+   , mPosition(position)
+   , mRotationMatrix(axisOfRot != glm::vec3(0.0f) ? glm::rotate(glm::mat4(1.0f), glm::radians(angleOfRotInDeg), axisOfRot) : glm::mat4(1.0f))
+   , mScalingFactor(scalingFactor != 0.0f ? scalingFactor : 1.0f)
+   , mColor(color)
+   , mModelMatrix(1.0f)
+   , mCalculateModelMatrix(true)
    , mVAO(0)
    , mVBO(0)
 {
+   calculateModelMatrix();
    configureVAO(startPoint, endPoint);
 }
 
@@ -23,6 +36,12 @@ Line::~Line()
 Line::Line(Line&& rhs) noexcept
    : mStartPoint(std::exchange(rhs.mStartPoint, glm::vec3(0.0f)))
    , mEndPoint(std::exchange(rhs.mEndPoint, glm::vec3(0.0f)))
+   , mPosition(std::exchange(rhs.mPosition, glm::vec3(0.0f)))
+   , mRotationMatrix(std::exchange(rhs.mRotationMatrix, glm::mat4(1.0f)))
+   , mScalingFactor(std::exchange(rhs.mScalingFactor, 1.0f))
+   , mColor(std::exchange(rhs.mColor, glm::vec3(0.0f)))
+   , mModelMatrix(std::exchange(rhs.mModelMatrix, glm::mat4(1.0f)))
+   , mCalculateModelMatrix(std::exchange(rhs.mCalculateModelMatrix, true))
    , mVAO(std::exchange(rhs.mVAO, 0))
    , mVBO(std::exchange(rhs.mVBO, 0))
 {
@@ -31,11 +50,35 @@ Line::Line(Line&& rhs) noexcept
 
 Line& Line::operator=(Line&& rhs) noexcept
 {
-   mStartPoint = std::exchange(rhs.mStartPoint, glm::vec3(0.0f));
-   mEndPoint   = std::exchange(rhs.mEndPoint, glm::vec3(0.0f));
-   mVAO        = std::exchange(rhs.mVAO, 0);
-   mVBO        = std::exchange(rhs.mVBO, 0);
+   mStartPoint           = std::exchange(rhs.mStartPoint, glm::vec3(0.0f));
+   mEndPoint             = std::exchange(rhs.mEndPoint, glm::vec3(0.0f));
+   mPosition             = std::exchange(rhs.mPosition, glm::vec3(0.0f));
+   mRotationMatrix       = std::exchange(rhs.mRotationMatrix, glm::mat4(1.0f));
+   mScalingFactor        = std::exchange(rhs.mScalingFactor, 1.0f);
+   mColor                = std::exchange(rhs.mColor, glm::vec3(0.0f));
+   mModelMatrix          = std::exchange(rhs.mModelMatrix, glm::mat4(1.0f));
+   mCalculateModelMatrix = std::exchange(rhs.mCalculateModelMatrix, true);
+   mVAO                  = std::exchange(rhs.mVAO, 0);
+   mVBO                  = std::exchange(rhs.mVBO, 0);
    return *this;
+}
+
+void Line::render(const Shader& shader) const
+{
+   if (mCalculateModelMatrix)
+   {
+      calculateModelMatrix();
+   }
+
+   shader.setMat4("model", mModelMatrix);
+   shader.setVec3("color", mColor);
+
+   // Render line
+   glBindVertexArray(mVAO);
+   glLineWidth(5);
+   glDrawArrays(GL_LINES, 0, 2);
+   glLineWidth(1);
+   glBindVertexArray(0);
 }
 
 glm::vec3 Line::getStartPoint() const
@@ -48,9 +91,64 @@ glm::vec3 Line::getEndPoint() const
    return mEndPoint;
 }
 
-void Line::bindVAO() const
+glm::vec3 Line::getPosition() const
 {
-   glBindVertexArray(mVAO);
+   return mPosition;
+}
+
+void Line::setPosition(const glm::vec3& position)
+{
+   mPosition = position;
+   mCalculateModelMatrix = true;
+}
+
+float Line::getScalingFactor() const
+{
+   return mScalingFactor;
+}
+
+void Line::setRotationMatrix(const glm::mat4& rotationMatrix)
+{
+   mRotationMatrix = rotationMatrix;
+   mCalculateModelMatrix = true;
+}
+
+void Line::translate(const glm::vec3& translation)
+{
+   mPosition += translation;
+   mCalculateModelMatrix = true;
+}
+
+void Line::rotate(float angleOfRotInDeg, const glm::vec3& axisOfRot)
+{
+   if (axisOfRot != glm::vec3(0.0f))
+   {
+      mRotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angleOfRotInDeg), axisOfRot) * mRotationMatrix;
+      mCalculateModelMatrix = true;
+   }
+}
+
+void Line::scale(float scalingFactor)
+{
+   if (scalingFactor != 0.0f)
+   {
+      mScalingFactor *= scalingFactor;
+      mCalculateModelMatrix = true;
+   }
+}
+
+void Line::calculateModelMatrix() const
+{
+   // 3) Translate the model
+   mModelMatrix = glm::translate(glm::mat4(1.0f), mPosition);
+
+   // 2) Rotate the model
+   mModelMatrix *= mRotationMatrix;
+
+   // 1) Scale the model
+   mModelMatrix = glm::scale(mModelMatrix, glm::vec3(mScalingFactor));
+
+   mCalculateModelMatrix = false;
 }
 
 void Line::configureVAO(glm::vec3 startPoint, glm::vec3 endPoint)

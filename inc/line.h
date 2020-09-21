@@ -3,12 +3,19 @@
 
 #include <glm/glm.hpp>
 
+#include "shader.h"
+
 class Line
 {
 public:
 
-   Line(glm::vec3 startPoint,
-        glm::vec3 endPoint);
+   Line(glm::vec3        startPoint,
+        glm::vec3        endPoint,
+        const glm::vec3& position,
+        float            angleOfRotInDeg,
+        const glm::vec3& axisOfRot,
+        float            scalingFactor,
+        glm::vec3        color);
    ~Line();
 
    Line(const Line&) = delete;
@@ -17,21 +24,43 @@ public:
    Line(Line&& rhs) noexcept;
    Line& operator=(Line&& rhs) noexcept;
 
+   void      render(const Shader& shader) const;
+
    glm::vec3 getStartPoint() const;
    glm::vec3 getEndPoint() const;
 
-   void bindVAO() const;
+   glm::vec3 getPosition() const;
+   void      setPosition(const glm::vec3& position);
+
+   float     getScalingFactor() const;
+
+   void      setRotationMatrix(const glm::mat4& rotationMatrix);
+
+   void      translate(const glm::vec3& translation);
+   void      rotate(float angleOfRotInDeg, const glm::vec3& axisOfRot);
+   void      scale(float scalingFactor);
 
 private:
 
-   void configureVAO(glm::vec3 startPoint,
-                     glm::vec3 endPoint);
+   void      configureVAO(glm::vec3 startPoint,
+                          glm::vec3 endPoint);
 
-   glm::vec3 mStartPoint;
-   glm::vec3 mEndPoint;
+   void      calculateModelMatrix() const;
 
-   unsigned int mVAO;
-   unsigned int mVBO;
+   glm::vec3         mStartPoint;
+   glm::vec3         mEndPoint;
+
+   glm::vec3         mPosition;
+   glm::mat4         mRotationMatrix;
+   float             mScalingFactor;
+
+   glm::vec3         mColor;
+
+   mutable glm::mat4 mModelMatrix;
+   mutable bool      mCalculateModelMatrix;
+
+   unsigned int      mVAO;
+   unsigned int      mVBO;
 };
 
 #endif
