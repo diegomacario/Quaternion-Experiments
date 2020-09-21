@@ -9,7 +9,7 @@ Window::Window(const std::string& title)
    , mWidthOfFramebufferInPix(0)
    , mHeightOfFramebufferInPix(0)
    , mTitle(title)
-   , mIsFullScreen(true)
+   , mIsFullScreen(false)
    , mKeys()
    , mProcessedKeys()
    , mMouseMoved(false)
@@ -58,10 +58,7 @@ bool Window::initialize()
    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-   const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-   mWidthOfWindowInPix = mode->width;
-   mHeightOfWindowInPix = mode->height;
-   mWindow = glfwCreateWindow(mWidthOfWindowInPix, mHeightOfWindowInPix, mTitle.c_str(), glfwGetPrimaryMonitor(), nullptr);
+   mWindow = glfwCreateWindow(1280, 720, mTitle.c_str(), nullptr, nullptr);
    if (!mWindow)
    {
       std::cout << "Error - Window::initialize - Failed to create the GLFW window" << "\n";
@@ -76,7 +73,7 @@ bool Window::initialize()
 
    setInputCallbacks();
 
-   enableCursor(false);
+   enableCursor(true);
 
    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
    {
