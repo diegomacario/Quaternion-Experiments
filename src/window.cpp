@@ -1,3 +1,7 @@
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <iostream>
 
 #include "window.h"
@@ -33,6 +37,10 @@ Window::~Window()
    glDeleteFramebuffers(1, &mMultisampleFBO);
    glDeleteTextures(1, &mMultisampleTexture);
    glDeleteRenderbuffers(1, &mMultisampleRBO);
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
    if (mWindow)
    {
@@ -93,6 +101,21 @@ bool Window::initialize()
       mWindow = nullptr;
       return false;
    }
+
+   // Initialize ImGui
+   // Setup Dear ImGui context
+   IMGUI_CHECKVERSION();
+   ImGui::CreateContext();
+   ImGuiIO& io = ImGui::GetIO(); (void)io;
+   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+   // Setup Dear ImGui style
+   ImGui::StyleColorsDark();
+
+   // Setup Platform/Renderer bindings
+   ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
+   ImGui_ImplOpenGL3_Init("#version 330 core");
 
    return true;
 }
