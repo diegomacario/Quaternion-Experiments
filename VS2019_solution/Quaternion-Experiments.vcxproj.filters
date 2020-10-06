@@ -70,6 +70,9 @@
     <ClCompile Include="..\dependencies\win\src\imgui\imgui_widgets.cpp">
       <Filter>imgui\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\quat.cpp">
+      <Filter>Quaternion-Experiments\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\camera.h">
@@ -146,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="..\dependencies\win\inc\imgui\imstb_truetype.h">
       <Filter>imgui\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\quat.h">
+      <Filter>Quaternion-Experiments\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
