@@ -21,9 +21,13 @@ PlayState::PlayState(const std::shared_ptr<FiniteStateMachine>&     finiteStateM
    , mLineShader(lineShader)
    , mTable(table)
    , mTeapot(teapot)
-   , mXAxis(glm::vec3(0.0f), glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f))
-   , mYAxis(glm::vec3(0.0f), glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f))
-   , mZAxis(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f))
+   , mWorldXAxis(glm::vec3(0.0f), glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 0.0f)) // Red
+   , mWorldYAxis(glm::vec3(0.0f), glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f)) // Green
+   , mWorldZAxis(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f)) // Blue
+
+   , mLocalXAxis(glm::vec3(0.0f), glm::vec3(16.0f, 0.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(1.0f, 1.0f, 0.0f)) //
+   , mLocalYAxis(glm::vec3(0.0f), glm::vec3(0.0f, 16.0f, 0.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 1.0f)) //
+   , mLocalZAxis(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 16.0f), glm::vec3(0.0f), 0.0f, glm::vec3(0.0f), 0.0f, glm::vec3(1.0f, 0.0f, 1.0f)) //
 {
 
 }
@@ -158,6 +162,22 @@ bool show_demo_window = true;
 bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+void PlayState::rotateSceneWRTLocalCoordFrame(const quat& rot)
+{
+   mTeapot->rotateByMultiplyingCurrentRotationFromTheLeft(rot);
+   mLocalXAxis.rotateByMultiplyingCurrentRotationFromTheLeft(rot);
+   mLocalYAxis.rotateByMultiplyingCurrentRotationFromTheLeft(rot);
+   mLocalZAxis.rotateByMultiplyingCurrentRotationFromTheLeft(rot);
+}
+
+void PlayState::rotateSceneWRTWorldCoordFrame(const quat& rot)
+{
+   mTeapot->rotateByMultiplyingCurrentRotationFromTheRight(rot);
+   mLocalXAxis.rotateByMultiplyingCurrentRotationFromTheRight(rot);
+   mLocalYAxis.rotateByMultiplyingCurrentRotationFromTheRight(rot);
+   mLocalZAxis.rotateByMultiplyingCurrentRotationFromTheRight(rot);
+}
+
 void PlayState::render()
 {
    ImGui_ImplOpenGL3_NewFrame();
@@ -186,6 +206,73 @@ void PlayState::render()
       ImGui::Text("counter = %d", counter);
 
       ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+      if (ImGui::Button("Reset rotation"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         mTeapot->setRotation(quat());
+         mLocalXAxis.setRotation(quat());
+         mLocalYAxis.setRotation(quat());
+         mLocalZAxis.setRotation(quat());
+      }
+
+      if (ImGui::Button("Rotate by 45 degrees around local Y"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 45 degrees around local Z"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 45 degrees around world Y"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+         rotateSceneWRTWorldCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 90 degrees around world Z"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+         rotateSceneWRTWorldCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 45 degrees around local (1, 1, 1)"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 90 degrees around world X"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+         rotateSceneWRTWorldCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Rotate by 90 degrees around local X"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rot = angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Child (X) then parent (Z)"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rotZParent = angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+         quat rotXChild  = angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+         quat rot = rotZParent * rotXChild;
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
+      if (ImGui::Button("Parent (Z) then child (X)"))     // Buttons return true when clicked (most widgets return true when edited/activated)
+      {
+         quat rotZParent = angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+         quat rotXChild  = angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+         quat rot =  rotXChild * rotZParent;
+         rotateSceneWRTLocalCoordFrame(rot);
+      }
+
       ImGui::End();
    }
 
@@ -207,9 +294,13 @@ void PlayState::render()
    mLineShader->use();
    mLineShader->setMat4("projectionView", mCamera->getPerspectiveProjectionViewMatrix());
 
-   mXAxis.render(*mLineShader);
-   mYAxis.render(*mLineShader);
-   mZAxis.render(*mLineShader);
+   mWorldXAxis.render(*mLineShader);
+   mWorldYAxis.render(*mLineShader);
+   mWorldZAxis.render(*mLineShader);
+
+   mLocalXAxis.render(*mLineShader);
+   mLocalYAxis.render(*mLineShader);
+   mLocalZAxis.render(*mLineShader);
 
    mGameObject3DShader->use();
    mGameObject3DShader->setMat4("projectionView", mCamera->getPerspectiveProjectionViewMatrix());

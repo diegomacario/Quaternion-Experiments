@@ -2,8 +2,14 @@
 #include <cmath>
 #include <iostream>
 
-quat angleAxis(float angle, const glm::vec3& axis) {
-	glm::vec3 norm = glm::normalize(axis);
+quat angleAxis(float angle, const glm::vec3& axis)
+{
+	glm::vec3 norm(0.0f);
+	if (glm::length(axis) != 0.0f)
+	{
+		norm = glm::normalize(axis);
+	}
+
 	float s = sinf(angle * 0.5f);
 
 	return quat(
@@ -262,8 +268,8 @@ glm::mat4 quatToMat4(const quat& q) {
 // TODO: Need to make sure this plays well with GLM
 // How do I access up and forward in glm?
 quat mat4ToQuat(const glm::mat4& m) {
-   glm::vec3 up;// = glm::normalize(glm::vec3(m.up.x, m.up.y, m.up.z));
-   glm::vec3 forward;// = glm::normalize(glm::vec3(m.forward.x, m.forward.y, m.forward.z));
+	glm::vec3 up = glm::normalize(glm::vec3(m[1].x, m[1].y, m[1].z));
+	glm::vec3 forward = glm::normalize(glm::vec3(m[2].x, m[2].y, m[2].z));
 	glm::vec3 right = cross(up, forward);
 	up = glm::cross(forward, right);
 

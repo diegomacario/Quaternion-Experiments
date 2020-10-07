@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "model.h"
+#include "quat.h"
 
 class GameObject3D
 {
@@ -31,10 +32,11 @@ public:
 
    float     getScalingFactor() const;
 
-   void      setRotationMatrix(const glm::mat4& rotationMatrix);
+   void      setRotation(const quat& rotation);
 
    void      translate(const glm::vec3& translation);
-   void      rotate(float angleOfRotInDeg, const glm::vec3& axisOfRot);
+   void      rotateByMultiplyingCurrentRotationFromTheLeft(const quat& rotation);
+   void      rotateByMultiplyingCurrentRotationFromTheRight(const quat& rotation);
    void      scale(float scalingFactor);
 
 private:
@@ -44,7 +46,7 @@ private:
    std::shared_ptr<Model> mModel;
 
    glm::vec3              mPosition;
-   glm::mat4              mRotationMatrix;
+   quat                   mRotation;
    float                  mScalingFactor;
 
    mutable glm::mat4      mModelMatrix;

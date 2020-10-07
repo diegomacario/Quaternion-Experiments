@@ -37,6 +37,9 @@ private:
 
    void resetCamera();
 
+   void rotateSceneWRTLocalCoordFrame(const quat& rot);
+   void rotateSceneWRTWorldCoordFrame(const quat& rot);
+
    std::shared_ptr<FiniteStateMachine>     mFSM;
 
    std::shared_ptr<Window>                 mWindow;
@@ -49,9 +52,13 @@ private:
    std::shared_ptr<GameObject3D>           mTable;
    std::shared_ptr<GameObject3D>           mTeapot;
 
-   Line                                    mXAxis;
-   Line                                    mYAxis;
-   Line                                    mZAxis;
+   Line                                    mWorldXAxis;
+   Line                                    mWorldYAxis;
+   Line                                    mWorldZAxis;
+
+   Line                                    mLocalXAxis;
+   Line                                    mLocalYAxis;
+   Line                                    mLocalZAxis;
 };
 
 #endif

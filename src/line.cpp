@@ -15,7 +15,7 @@ Line::Line(glm::vec3        startPoint,
    : mStartPoint(startPoint)
    , mEndPoint(endPoint)
    , mPosition(position)
-   , mRotationMatrix(axisOfRot != glm::vec3(0.0f) ? glm::rotate(glm::mat4(1.0f), glm::radians(angleOfRotInDeg), axisOfRot) : glm::mat4(1.0f))
+   , mRotation(angleAxis(glm::radians(angleOfRotInDeg), axisOfRot))
    , mScalingFactor(scalingFactor != 0.0f ? scalingFactor : 1.0f)
    , mColor(color)
    , mModelMatrix(1.0f)
@@ -37,7 +37,7 @@ Line::Line(Line&& rhs) noexcept
    : mStartPoint(std::exchange(rhs.mStartPoint, glm::vec3(0.0f)))
    , mEndPoint(std::exchange(rhs.mEndPoint, glm::vec3(0.0f)))
    , mPosition(std::exchange(rhs.mPosition, glm::vec3(0.0f)))
-   , mRotationMatrix(std::exchange(rhs.mRotationMatrix, glm::mat4(1.0f)))
+   , mRotation(std::exchange(rhs.mRotation, quat()))
    , mScalingFactor(std::exchange(rhs.mScalingFactor, 1.0f))
    , mColor(std::exchange(rhs.mColor, glm::vec3(0.0f)))
    , mModelMatrix(std::exchange(rhs.mModelMatrix, glm::mat4(1.0f)))
@@ -53,7 +53,7 @@ Line& Line::operator=(Line&& rhs) noexcept
    mStartPoint           = std::exchange(rhs.mStartPoint, glm::vec3(0.0f));
    mEndPoint             = std::exchange(rhs.mEndPoint, glm::vec3(0.0f));
    mPosition             = std::exchange(rhs.mPosition, glm::vec3(0.0f));
-   mRotationMatrix       = std::exchange(rhs.mRotationMatrix, glm::mat4(1.0f));
+   mRotation             = std::exchange(rhs.mRotation, quat());
    mScalingFactor        = std::exchange(rhs.mScalingFactor, 1.0f);
    mColor                = std::exchange(rhs.mColor, glm::vec3(0.0f));
    mModelMatrix          = std::exchange(rhs.mModelMatrix, glm::mat4(1.0f));
@@ -107,9 +107,9 @@ float Line::getScalingFactor() const
    return mScalingFactor;
 }
 
-void Line::setRotationMatrix(const glm::mat4& rotationMatrix)
+void Line::setRotation(const quat& rotation)
 {
-   mRotationMatrix = rotationMatrix;
+   mRotation = rotation;
    mCalculateModelMatrix = true;
 }
 
@@ -119,13 +119,16 @@ void Line::translate(const glm::vec3& translation)
    mCalculateModelMatrix = true;
 }
 
-void Line::rotate(float angleOfRotInDeg, const glm::vec3& axisOfRot)
+void Line::rotateByMultiplyingCurrentRotationFromTheLeft(const quat& rotation)
 {
-   if (axisOfRot != glm::vec3(0.0f))
-   {
-      mRotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(angleOfRotInDeg), axisOfRot) * mRotationMatrix;
-      mCalculateModelMatrix = true;
-   }
+   mRotation = rotation * mRotation;
+   mCalculateModelMatrix = true;
+}
+
+void Line::rotateByMultiplyingCurrentRotationFromTheRight(const quat& rotation)
+{
+   mRotation = mRotation * rotation;
+   mCalculateModelMatrix = true;
 }
 
 void Line::scale(float scalingFactor)
@@ -143,7 +146,7 @@ void Line::calculateModelMatrix() const
    mModelMatrix = glm::translate(glm::mat4(1.0f), mPosition);
 
    // 2) Rotate the model
-   mModelMatrix *= mRotationMatrix;
+   mModelMatrix *= quatToMat4(mRotation);
 
    // 1) Scale the model
    mModelMatrix = glm::scale(mModelMatrix, glm::vec3(mScalingFactor));
