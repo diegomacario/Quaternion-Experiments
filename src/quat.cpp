@@ -1,28 +1,39 @@
+#include <glm/gtx/norm.hpp>
+
 #include "quat.h"
 #include <cmath>
 #include <iostream>
 
+// Note: I will need a normalize function that checks that the length of the vector is not 0
+
+glm::vec3 normalize(const glm::vec3& vec)
+{
+	float lengthSquared = glm::length2(vec);
+	if (lengthSquared == 0.0f) // TODO: Use threshold here
+	{
+		return vec;
+	}
+
+	return vec / glm::sqrt(lengthSquared);
+}
+
 quat angleAxis(float angle, const glm::vec3& axis)
 {
-	glm::vec3 norm(0.0f);
-	if (glm::length(axis) != 0.0f)
-	{
-		norm = glm::normalize(axis);
-	}
+	glm::vec3 normalizedAxis = normalize(axis);
 
 	float s = sinf(angle * 0.5f);
 
 	return quat(
-		norm.x * s,
-		norm.y * s,
-		norm.z * s,
+		normalizedAxis.x * s,
+		normalizedAxis.y * s,
+		normalizedAxis.z * s,
 		cosf(angle * 0.5f)
 	);
 }
 
 quat fromTo(const glm::vec3& from, const glm::vec3& to) {
-	glm::vec3 f = glm::normalize(from);
-	glm::vec3 t = glm::normalize(to);
+	glm::vec3 f = normalize(from);
+	glm::vec3 t = normalize(to);
 
 	if (f == t) {
 		return quat();
@@ -36,11 +47,11 @@ quat fromTo(const glm::vec3& from, const glm::vec3& to) {
 			ortho = glm::vec3(0, 0, 1);
 		}
 
-		glm::vec3 axis = glm::normalize(glm::cross(f, ortho));
+		glm::vec3 axis = normalize(glm::cross(f, ortho));
 		return quat(axis.x, axis.y, axis.z, 0);
 	}
 
-	glm::vec3 half = glm::normalize(f + t);
+	glm::vec3 half = normalize(f + t);
 	glm::vec3 axis = glm::cross(f, half);
 
 	return quat(
@@ -52,7 +63,7 @@ quat fromTo(const glm::vec3& from, const glm::vec3& to) {
 }
 
 glm::vec3 getAxis(const quat& quat) {
-	return glm::normalize(glm::vec3(quat.x, quat.y, quat.z));
+	return normalize(glm::vec3(quat.x, quat.y, quat.z));
 }
 
 float getAngle(const quat& quat) {
@@ -205,7 +216,7 @@ quat nlerp(const quat& from, const quat& to, float t) {
 
 quat operator^(const quat& q, float f) {
 	float angle = 2.0f * acosf(q.scalar);
-	glm::vec3 axis = glm::normalize(q.vector);
+	glm::vec3 axis = normalize(q.vector);
 
 	float halfCos = cosf(f * angle * 0.5f);
 	float halfSin = sinf(f * angle * 0.5f);
@@ -231,8 +242,8 @@ quat slerp(const quat& start, const quat& end, float t) {
 // This is still mysterious to me
 quat lookRotation(const glm::vec3& direction, const glm::vec3& up) {
 	// Find orthonormal basis vectors
-	glm::vec3 f = glm::normalize(direction);
-	glm::vec3 u = glm::normalize(up);
+	glm::vec3 f = normalize(direction);
+	glm::vec3 u = normalize(up);
 	glm::vec3 r = cross(u, f);
 	u = cross(f, r);
 
@@ -268,8 +279,8 @@ glm::mat4 quatToMat4(const quat& q) {
 // TODO: Need to make sure this plays well with GLM
 // How do I access up and forward in glm?
 quat mat4ToQuat(const glm::mat4& m) {
-	glm::vec3 up = glm::normalize(glm::vec3(m[1].x, m[1].y, m[1].z));
-	glm::vec3 forward = glm::normalize(glm::vec3(m[2].x, m[2].y, m[2].z));
+	glm::vec3 up = normalize(glm::vec3(m[1].x, m[1].y, m[1].z));
+	glm::vec3 forward = normalize(glm::vec3(m[2].x, m[2].y, m[2].z));
 	glm::vec3 right = cross(up, forward);
 	up = glm::cross(forward, right);
 
