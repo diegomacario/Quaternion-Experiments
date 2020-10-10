@@ -188,7 +188,8 @@ quat inverse(const quat& q) {
 	);
 }
 
-// TODO: Will play with this
+// By Gabor
+/*
 quat operator*(const quat& Q1, const quat& Q2) {
 	return quat(
 		Q2.x * Q1.w + Q2.y * Q1.z - Q2.z * Q1.y + Q2.w * Q1.x,
@@ -197,15 +198,53 @@ quat operator*(const quat& Q1, const quat& Q2) {
 		-Q2.x * Q1.x - Q2.y * Q1.y - Q2.z * Q1.z + Q2.w * Q1.w
 	);
 }
+*/
 
-// TODO: Will play with this
+// By Gabor
+quat operator*(const quat& Q, const quat& P)
+{
+	quat result;
+	result.scalar = P.scalar * Q.scalar - dot(P.vector, Q.vector);
+	result.vector = (Q.vector * P.scalar) + (P.vector * Q.scalar) + cross(P.vector, Q.vector);
+	return result;
+}
+
+// By Gabor
+/*
 glm::vec3 operator*(const quat& q, const glm::vec3& v) {
 	return    q.vector * 2.0f * dot(q.vector, v) +
 		v * (q.scalar * q.scalar - dot(q.vector, q.vector)) +
 		cross(q.vector, v) * 2.0f * q.scalar;
 }
+*/
 
-// Haven't studied this
+// By Gabor
+glm::vec3 operator*(const quat& q, const glm::vec3& v)
+{
+	quat result = inverse(q) * (quat(v.x, v.y, v.z, 0) * q);
+	return glm::vec3(result.x, result.y, result.z);
+}
+
+// By 3DGEP
+/*
+quat operator*(const quat& Q, const quat& P)
+{
+	quat result;
+	result.scalar = Q.scalar * P.scalar - dot(Q.vector, P.vector);
+	result.vector = (Q.scalar * P.vector) + (P.scalar * Q.vector) + cross(Q.vector, P.vector);
+	return result;
+}
+*/
+
+// By 3DGEP
+/*
+glm::vec3 operator*(const quat& q, const glm::vec3& v)
+{
+	quat result = q * quat(v.x, v.y, v.z, 0) * inverse(q);
+	return glm::vec3(result.x, result.y, result.z);
+}
+*/
+
 quat mix(const quat& from, const quat& to, float t) {
 	return from * (1.0f - t) + to * t;
 }
@@ -235,7 +274,8 @@ quat slerp(const quat& start, const quat& end, float t) {
 	}
 
 	// TODO: In Gabor's written description this is (end * inverse(start))
-	return normalized(((inverse(start) * end) ^ t) * start);
+	//return normalized(((inverse(start) * end) ^ t) * start);
+   return normalized(start * ((inverse(start) * end) ^ t));
 }
 
 // TODO: Will play with this

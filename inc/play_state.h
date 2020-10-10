@@ -37,8 +37,8 @@ private:
 
    void resetCamera();
 
-   void rotateSceneWRTLocalCoordFrame(const quat& rot);
-   void rotateSceneWRTWorldCoordFrame(const quat& rot);
+   void rotateSceneByMultiplyingCurrentRotationFromTheLeft(const quat& rot);
+   void rotateSceneByMultiplyingCurrentRotationFromTheRight(const quat& rot);
 
    std::shared_ptr<FiniteStateMachine>     mFSM;
 
