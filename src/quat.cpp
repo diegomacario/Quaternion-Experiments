@@ -189,7 +189,6 @@ quat inverse(const quat& q) {
 }
 
 // By Gabor
-/*
 quat operator*(const quat& Q1, const quat& Q2) {
 	return quat(
 		Q2.x * Q1.w + Q2.y * Q1.z - Q2.z * Q1.y + Q2.w * Q1.x,
@@ -198,9 +197,9 @@ quat operator*(const quat& Q1, const quat& Q2) {
 		-Q2.x * Q1.x - Q2.y * Q1.y - Q2.z * Q1.z + Q2.w * Q1.w
 	);
 }
-*/
 
 // By Gabor
+/*
 quat operator*(const quat& Q, const quat& P)
 {
 	quat result;
@@ -208,22 +207,23 @@ quat operator*(const quat& Q, const quat& P)
 	result.vector = (Q.vector * P.scalar) + (P.vector * Q.scalar) + cross(P.vector, Q.vector);
 	return result;
 }
+*/
 
 // By Gabor
-/*
 glm::vec3 operator*(const quat& q, const glm::vec3& v) {
 	return    q.vector * 2.0f * dot(q.vector, v) +
 		v * (q.scalar * q.scalar - dot(q.vector, q.vector)) +
 		cross(q.vector, v) * 2.0f * q.scalar;
 }
-*/
 
 // By Gabor
+/*
 glm::vec3 operator*(const quat& q, const glm::vec3& v)
 {
 	quat result = inverse(q) * (quat(v.x, v.y, v.z, 0) * q);
 	return glm::vec3(result.x, result.y, result.z);
 }
+*/
 
 // By 3DGEP
 /*
